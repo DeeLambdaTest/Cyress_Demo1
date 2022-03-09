@@ -24,11 +24,17 @@ install:
   stage: build
 
   script:
-    - npm install
+    - npm ci
     - npm uninstall -g lambdatest-cypress-cli
     - npm uninstall --save-dev lambdatest-cypress-cli
     - npm install --save-dev lambdatest-cypress-cli@2.1.2
+    # check Cypress binary path and cached versions
+    # useful to make sure we are not carrying around old versions
+    - npx cypress cache path
+    - npx cypress cache list
+    - $(npm bin)/print-env CI
     - npx lambdatest-cypress run
+
 
 # all jobs that actually run tests can use the same definition
 .job_template:
@@ -40,7 +46,7 @@ install:
     # start the server in the background
     - npm run start:ci &
     # run Cypress test in load balancing mode
-    - npm run e2e:record -- --parallel --group "electrons on GitLab CI"
+    - npm lambdatest-cypress run e2e:record -- --parallel --group "electrons on GitLab CI"
   artifacts:
     when: always
     paths:
